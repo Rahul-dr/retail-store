@@ -33,13 +33,37 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http.csrf(AbstractHttpConfigurer::disable)
+//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+//                .authorizeHttpRequests(
+//                        auth -> auth.requestMatchers("/api/admin/login").permitAll()
+//                                .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+//                                .requestMatchers("/api/v1/**").hasAnyAuthority("ROLE_CUSTOMER", "ROLE_ADMIN")
+//                                .anyRequest()
+//                                .authenticated())
+//                .sessionManagement(
+//                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .addFilterBefore(new JwtAuthenticationFilter(jwtUtil, userDetailsService), UsernamePasswordAuthenticationFilter.class);
+//
+//        return http.build();
+//    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(
-                        auth -> auth.requestMatchers("/api/v1/auth/**")
-                                .permitAll()
+                        auth -> auth
+                                // Allow public endpoints
+                                .requestMatchers("/api/admin/login").permitAll()
+                                .requestMatchers("/api/v1/auth/login").permitAll()
+                                .requestMatchers("/api/v1/auth/register").permitAll()
+                                // Secure admin endpoints
+                                .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+                                // Secure customer endpoints
+                                .requestMatchers("/api/v1/**").hasAnyAuthority("ROLE_CUSTOMER", "ROLE_ADMIN")
                                 .anyRequest()
                                 .authenticated())
                 .sessionManagement(
