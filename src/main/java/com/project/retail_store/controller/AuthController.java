@@ -6,6 +6,7 @@ import com.project.retail_store.dtos.RegisterRequest;
 import com.project.retail_store.dtos.ApiResponse;
 import com.project.retail_store.service.interfaces.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,6 +23,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ApiResponse<AuthResponse> login(@RequestBody AuthRequest request) {
+        String hashedPassword = new BCryptPasswordEncoder().encode("1100");
+        System.out.println(hashedPassword);
         AuthResponse response = authService.login(request);
         return new ApiResponse<>("Login successful", response);
     }
