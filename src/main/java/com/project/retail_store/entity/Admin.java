@@ -1,10 +1,10 @@
 package com.project.retail_store.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "admins")
@@ -13,18 +13,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Admin {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String name;
+  private String name;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+  @Column(nullable = false, unique = true)
+  private String email;
 
-    @Column(nullable = false)
-    private String password;  // Store hashed password
+  @Column(nullable = false)
+  private String password; // Store hashed password
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+  @Column(nullable = false, updatable = false)
+  private LocalDateTime createdAt = LocalDateTime.now();
 }

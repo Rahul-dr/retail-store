@@ -8,6 +8,8 @@ import com.project.retail_store.entity.User;
 import com.project.retail_store.repository.UserRepository;
 import com.project.retail_store.service.interfaces.AuthService;
 import com.project.retail_store.util.JwtUtil;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,12 +18,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
 //
-//@Service
-//@RequiredArgsConstructor
-//public class AuthServiceImpl implements AuthService {
+// @Service
+// @RequiredArgsConstructor
+// public class AuthServiceImpl implements AuthService {
 //
 //    private final CustomerRepository customerRepository;
 //    private final PasswordEncoder passwordEncoder;
@@ -90,59 +90,63 @@ import java.util.Collections;
 //
 //        return response;
 //    }
-//}
+// }
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-    private final UserRepository userRepository;  // ✅ Fix: Use UserRepository
-    private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+  private final UserRepository userRepository; // ✅ Fix: Use UserRepository
+  private final PasswordEncoder passwordEncoder;
+  private final JwtUtil jwtUtil;
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+  @Override
+  public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    User user =
+        userRepository
+            .findByEmail(email)
+            .orElseThrow(
+                () -> new UsernameNotFoundException("User not found with email: " + email));
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()))
-        );
+    return new org.springframework.security.core.userdetails.User(
+        user.getEmail(),
+        user.getPassword(),
+        Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name())));
+  }
+
+  @Override
+  @Transactional
+  public AuthResponse register(RegisterRequest request) {
+    if (userRepository.existsByEmail(request.getEmail())) {
+      throw new RuntimeException("Email already registered");
     }
 
-    @Override
-    @Transactional
-    public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered");
-        }
+    User user = new User();
+    user.setEmail(request.getEmail());
+    user.setPassword(passwordEncoder.encode(request.getPassword()));
+    user.setName(request.getName());
+    user.setRole(ERole.ROLE_CUSTOMER);
+    user.setDateCreated(LocalDateTime.now());
 
-        User user = new User();
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setName(request.getName());
-        user.setRole(ERole.ROLE_CUSTOMER);
-        user.setDateCreated(LocalDateTime.now());
+    userRepository.save(user);
 
-        userRepository.save(user);
+    String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+    return new AuthResponse(token, user.getEmail(), user.getRole().name());
+  }
 
-        return new AuthResponse(token, user.getEmail(), user.getRole().name());
+  @Override
+  public AuthResponse login(AuthRequest request) {
+    User user =
+        userRepository
+            .findByEmail(request.getEmail())
+            .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+
+    if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+      throw new RuntimeException("Invalid email or password");
     }
 
-    @Override
-    public AuthResponse login(AuthRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+    String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid email or password");
-        }
-
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-
-        return new AuthResponse(token, user.getEmail(), user.getRole().name());
-    }
+    return new AuthResponse(token, user.getEmail(), user.getRole().name());
+  }
 }

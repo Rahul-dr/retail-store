@@ -7,8 +7,9 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface ProductCategoryMapper {
-    ProductCategoryMapper INSTANCE = Mappers.getMapper(ProductCategoryMapper.class);
+  ProductCategoryMapper INSTANCE = Mappers.getMapper(ProductCategoryMapper.class);
 
-    ProductCategoryDto toDto(ProductCategory category);
-    ProductCategory toEntity(ProductCategoryDto categoryDto);
+  ProductCategoryDto toDto(ProductCategory category);
+
+  ProductCategory toEntity(ProductCategoryDto categoryDto);
 }

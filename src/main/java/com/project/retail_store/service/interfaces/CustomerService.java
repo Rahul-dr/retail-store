@@ -1,19 +1,18 @@
 package com.project.retail_store.service.interfaces;
 
 import com.project.retail_store.dtos.CustomerDto;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import java.util.List;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public interface CustomerService {
 
-    CustomerDto getCustomerProfile(Long id);
+  CustomerDto getCustomerProfile(Long id);
 
-    CustomerDto updateCustomerProfile(Long id, CustomerDto customerDto);
+  CustomerDto updateCustomerProfile(Long id, CustomerDto customerDto);
 
-    UserDetails loadUserByUsername(String email);
+  UserDetails loadUserByUsername(String email);
 
-    List<CustomerDto> getAllCustomers();
+  List<CustomerDto> getAllCustomers();
 
-    void disableCustomer(Long customerId);
+  void disableCustomer(Long customerId);
 }

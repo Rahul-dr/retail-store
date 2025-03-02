@@ -8,9 +8,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public interface AuthService {
 
-    UserDetails loadUserByUsername(String email) throws UsernameNotFoundException;
+  UserDetails loadUserByUsername(String email) throws UsernameNotFoundException;
 
-    AuthResponse register(RegisterRequest request);
+  AuthResponse register(RegisterRequest request);
 
-    AuthResponse login(AuthRequest request);
+  AuthResponse login(AuthRequest request);
 }
