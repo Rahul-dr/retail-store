@@ -4,22 +4,20 @@ import com.project.retail_store.Enum.ERole;
 import com.project.retail_store.dtos.AuthRequest;
 import com.project.retail_store.dtos.AuthResponse;
 import com.project.retail_store.dtos.RegisterRequest;
-import com.project.retail_store.entity.Customer;
 import com.project.retail_store.entity.User;
-import com.project.retail_store.repository.CustomerRepository;
 import com.project.retail_store.repository.UserRepository;
 import com.project.retail_store.service.interfaces.AuthService;
-import com.project.retail_store.service.interfaces.CustomerService;
-import com.project.retail_store.util.CommonUtils;
 import com.project.retail_store.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 //
 //@Service
 //@RequiredArgsConstructor
@@ -100,6 +98,18 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;  // ✅ Fix: Use UserRepository
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                user.getPassword(),
+                Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()))
+        );
+    }
 
     @Override
     @Transactional

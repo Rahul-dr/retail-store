@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/categories")
+@RequestMapping("/api/admin/product-categories")
 @RequiredArgsConstructor
 public class ProductCategoryController {
     private final ProductCategoryService productCategoryService;
